@@ -1,0 +1,56 @@
+version: '3.8'
+
+services:
+  # ATEIROLAS Dashboard Web Service
+  ateirolas-dashboard:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ateirolas-dashboard
+    ports:
+      - "8080:80"    # Host:Container
+    restart: unless-stopped
+    
+    # Environment variables (optional)
+    environment:
+      - TZ=Asia/Jakarta
+      - NGINX_HOST=localhost
+      - NGINX_PORT=80
+    
+    # Health check
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 10s
+    
+    # Resource limits (optional - untuk production)
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+    
+    # Networks
+    networks:
+      - ateirolas-network
+    
+    # Logging
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+# Networks
+networks:
+  ateirolas-network:
+    driver: bridge
+
+# Volumes (jika diperlukan untuk persistent data)
+# volumes:
+#   ateirolas-data:
