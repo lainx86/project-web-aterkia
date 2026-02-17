@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # ============================================================
-# ATEIROLAS Dashboard - Quick Deploy Script
+# ATEROLAS Dashboard - Quick Deploy Script
 # ============================================================
 
 set -e  # Exit on error
@@ -52,8 +52,9 @@ echo -e "${BLUE}⏳ Waiting for container to be ready...${NC}"
 sleep 5
 
 # Check if container is running
-if [ "$(docker ps -q -f name=ateirolas-dashboard)" ]; then
-    echo -e "${GREEN}✅ Container is running!${NC}"
+# Check if containers are running
+if [ "$(docker ps -q -f name=ateirolas-dashboard)" ] && [ "$(docker ps -q -f name=asv-backend)" ]; then
+    echo -e "${GREEN}✅ All services are running!${NC}"
     echo ""
     echo "========================================="
     echo -e "${GREEN}🎉 Dashboard is LIVE!${NC}"
