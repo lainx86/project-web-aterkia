@@ -1,8 +1,8 @@
 // ============================================
 // Configuration
 // ============================================
-const API_BASE_URL = '';
-const UPDATE_INTERVAL = 2000; // Update setiap 2 detik
+const API_BASE_URL = 'http://localhost:8000';
+const UPDATE_INTERVAL = 2000;
 
 // ============================================
 // State Management
@@ -17,17 +17,38 @@ let selectedImageFilename = null;
 
 // Admin Auth State
 let isAdminLoggedIn = false;
+let adminToken = null;  // JWT token dari backend
 
-// Credentials (untuk produksi, validasi sebaiknya di backend)
-const ADMIN_CREDENTIALS = {
-    username: 'admin',
-    password: 'asv2025'
-};
+// ============================================
+// Token Helpers
+// ============================================
+function saveToken(token) {
+    adminToken = token;
+    sessionStorage.setItem('adminToken', token);
+}
+
+function loadToken() {
+    const t = sessionStorage.getItem('adminToken');
+    if (t) { adminToken = t; isAdminLoggedIn = true; }
+}
+
+function clearToken() {
+    adminToken = null;
+    sessionStorage.removeItem('adminToken');
+}
+
+function authHeaders() {
+    return {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${adminToken}`
+    };
+}
 
 // ============================================
 // Initialize App
 // ============================================
 document.addEventListener('DOMContentLoaded', () => {
+    loadToken();  // restore JWT session jika ada
     initTheme();
     initTabs();
     initMap();
@@ -37,9 +58,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initEventListeners();
     loadGallery();
 
-    // Restore sesi admin jika ada
-    if (sessionStorage.getItem('adminLoggedIn') === 'true') {
-        isAdminLoggedIn = true;
+    if (isAdminLoggedIn) {
         document.getElementById('adminBadge').style.display = 'inline';
     }
 });
@@ -64,8 +83,8 @@ function setTheme(theme) {
     const headerTitle = document.getElementById('headerTitle');
     if (headerTitle) {
         headerTitle.src = theme === 'dark'
-            ? 'assets/title-dark.png'
-            : 'assets/title-light.png';
+            ? 'http://localhost:8000/assets/title-dark.png'
+            : 'http://localhost:8000/assets/title-light.png';
     }
 }
 
@@ -127,42 +146,67 @@ function closeAdminLoginModal() {
     modal.classList.remove('active');
 }
 
-function handleAdminLogin() {
+async function handleAdminLogin() {
     const username = document.getElementById('adminUsername').value.trim();
     const password = document.getElementById('adminPassword').value;
     const errorEl = document.getElementById('adminLoginError');
     const box = document.querySelector('.admin-login-box');
+    const loginBtn = document.getElementById('adminLoginBtn');
 
-    if (username === ADMIN_CREDENTIALS.username && password === ADMIN_CREDENTIALS.password) {
-        isAdminLoggedIn = true;
-        sessionStorage.setItem('adminLoggedIn', 'true');
-        closeAdminLoginModal();
+    if (!username || !password) {
+        errorEl.textContent = 'Username dan password wajib diisi!';
+        return;
+    }
 
-        // Pindah ke tab admin
-        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-        document.querySelector('[data-tab="admin"]').classList.add('active');
-        document.getElementById('admin').classList.add('active');
+    // Loading state
+    loginBtn.textContent = 'Loading...';
+    loginBtn.disabled = true;
+    errorEl.textContent = '';
 
-        // Tampilkan badge aktif
-        document.getElementById('adminBadge').style.display = 'inline';
+    try {
+        const res = await fetch(`${API_BASE_URL}/api/auth/login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, password })
+        });
 
-        showNotification('Login berhasil! Selamat datang, Admin.', 'success');
-    } else {
-        errorEl.textContent = 'Username atau password salah!';
-        // Animasi shake
-        box.classList.remove('shake');
-        void box.offsetWidth; // reflow
-        box.classList.add('shake');
-        setTimeout(() => box.classList.remove('shake'), 500);
-        document.getElementById('adminPassword').value = '';
-        document.getElementById('adminPassword').focus();
+        if (res.ok) {
+            const data = await res.json();
+            saveToken(data.access_token);
+            isAdminLoggedIn = true;
+
+            closeAdminLoginModal();
+
+            // Pindah ke tab admin
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            document.querySelector('[data-tab="admin"]').classList.add('active');
+            document.getElementById('admin').classList.add('active');
+
+            document.getElementById('adminBadge').style.display = 'inline';
+            showNotification('Login berhasil! Selamat datang, Admin.', 'success');
+        } else {
+            const err = await res.json();
+            errorEl.textContent = err.detail || 'Username atau password salah!';
+            box.classList.remove('shake');
+            void box.offsetWidth;
+            box.classList.add('shake');
+            setTimeout(() => box.classList.remove('shake'), 500);
+            document.getElementById('adminPassword').value = '';
+            document.getElementById('adminPassword').focus();
+        }
+    } catch (e) {
+        errorEl.textContent = 'Tidak dapat terhubung ke server!';
+        console.error('Login error:', e);
+    } finally {
+        loginBtn.textContent = 'LOGINS';
+        loginBtn.disabled = false;
     }
 }
 
 function handleAdminLogout() {
     isAdminLoggedIn = false;
-    sessionStorage.removeItem('adminLoggedIn');
+    clearToken();
     document.getElementById('adminBadge').style.display = 'none';
 
     // Kembali ke tab monitoring
@@ -430,21 +474,26 @@ async function updateAdminState(updates) {
     try {
         const response = await fetch(`${API_BASE_URL}/api/admin/update`, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
+            headers: authHeaders(),
             body: JSON.stringify(updates)
         });
 
-        const result = await response.json();
+        if (response.status === 401) {
+            showNotification('Sesi habis, silakan login kembali.', 'error');
+            handleAdminLogout();
+            return;
+        }
 
-        if (result.status === 'success') {
-            showNotification('Settings updated successfully', 'success');
-            loadAdminState(); // Reload state
+        const result = await response.json();
+        if (response.ok) {
+            showNotification('Settings berhasil disimpan.', 'success');
+            loadAdminState();
+        } else {
+            showNotification(result.detail || 'Gagal menyimpan settings.', 'error');
         }
     } catch (error) {
         console.error('Error updating admin state:', error);
-        showNotification('Failed to update settings', 'error');
+        showNotification('Tidak dapat terhubung ke server.', 'error');
     }
 }
 
@@ -504,43 +553,57 @@ function closeImageModal() {
 }
 
 async function deleteImage(filename) {
-    if (!confirm(`Delete ${filename}?`)) return;
+    if (!confirm(`Hapus ${filename}?`)) return;
 
     try {
         const response = await fetch(`${API_BASE_URL}/api/images/${filename}`, {
-            method: 'DELETE'
+            method: 'DELETE',
+            headers: authHeaders()
         });
 
-        const result = await response.json();
+        if (response.status === 401) {
+            showNotification('Sesi habis, silakan login kembali.', 'error');
+            handleAdminLogout(); return;
+        }
 
-        if (result.status === 'success') {
-            showNotification('Image deleted successfully', 'success');
+        const result = await response.json();
+        if (response.ok) {
+            showNotification('Gambar berhasil dihapus.', 'success');
             closeImageModal();
             loadGallery();
+        } else {
+            showNotification(result.detail || 'Gagal menghapus gambar.', 'error');
         }
     } catch (error) {
         console.error('Error deleting image:', error);
-        showNotification('Failed to delete image', 'error');
+        showNotification('Tidak dapat terhubung ke server.', 'error');
     }
 }
 
 async function clearAllImages() {
-    if (!confirm('Delete all images? This action cannot be undone.')) return;
+    if (!confirm('Hapus semua gambar? Tindakan ini tidak dapat dibatalkan.')) return;
 
     try {
         const response = await fetch(`${API_BASE_URL}/api/images/all/clear`, {
-            method: 'DELETE'
+            method: 'DELETE',
+            headers: authHeaders()
         });
 
-        const result = await response.json();
+        if (response.status === 401) {
+            showNotification('Sesi habis, silakan login kembali.', 'error');
+            handleAdminLogout(); return;
+        }
 
-        if (result.status === 'success') {
-            showNotification(`${result.deleted_count} images deleted`, 'success');
+        const result = await response.json();
+        if (response.ok) {
+            showNotification(`${result.deleted_count} gambar berhasil dihapus.`, 'success');
             loadGallery();
+        } else {
+            showNotification(result.detail || 'Gagal menghapus semua gambar.', 'error');
         }
     } catch (error) {
         console.error('Error clearing gallery:', error);
-        showNotification('Failed to clear gallery', 'error');
+        showNotification('Tidak dapat terhubung ke server.', 'error');
     }
 }
 
@@ -548,29 +611,35 @@ async function clearAllImages() {
 // File Upload
 // ============================================
 async function uploadFile(file, type = 'csv') {
+    const endpoint = type === 'csv'
+        ? `${API_BASE_URL}/api/upload/csv`
+        : `${API_BASE_URL}/api/upload/image`;
+
     const formData = new FormData();
     formData.append('file', file);
-    formData.append('type', type);
 
     try {
-        const response = await fetch(`${API_BASE_URL}/api/upload`, {
+        const response = await fetch(endpoint, {
             method: 'POST',
+            headers: { 'Authorization': `Bearer ${adminToken}` }, // tanpa Content-Type (multipart otomatis)
             body: formData
         });
 
+        if (response.status === 401) {
+            showNotification('Sesi habis, silakan login kembali.', 'error');
+            handleAdminLogout(); return;
+        }
+
         const result = await response.json();
-
-        if (result.status === 'success') {
-            showNotification(`File ${result.filename} uploaded successfully`, 'success');
-
-            // Jika CSV track, reload map
-            if (type === 'csv') {
-                loadTrackData(currentTrack);
-            }
+        if (response.ok) {
+            showNotification(`File ${result.filename} berhasil diupload.`, 'success');
+            if (type === 'csv') loadTrackData(currentTrack);
+        } else {
+            showNotification(result.detail || 'Gagal upload file.', 'error');
         }
     } catch (error) {
         console.error('Error uploading file:', error);
-        showNotification('Failed to upload file', 'error');
+        showNotification('Tidak dapat terhubung ke server.', 'error');
     }
 }
 

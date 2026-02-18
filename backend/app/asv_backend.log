@@ -1,0 +1,10 @@
+2026-02-18 16:06:49,223 [INFO] asv-backend - Admin state berhasil dimuat dari file.
+2026-02-18 16:06:49,223 [INFO] asv-backend - ASV Backend v2.0 siap.
+2026-02-18 16:06:55,905 [INFO] asv-backend - Admin state berhasil dimuat dari file.
+2026-02-18 16:06:55,905 [INFO] asv-backend - ASV Backend v2.0 siap.
+2026-02-18 16:07:50,723 [INFO] asv-backend - Login berhasil: 'admin'
+2026-02-18 16:08:06,704 [INFO] asv-backend - File disimpan: /home/lain/Dev/Aterkia/intern/Project-Web2/backend/uploads/lintasan_a.csv (950 bytes)
+2026-02-18 16:08:38,473 [INFO] asv-backend - Admin state disimpan.
+2026-02-18 16:08:38,473 [INFO] asv-backend - State diupdate oleh 'admin': {'theme': 'light'}
+2026-02-18 16:08:39,896 [INFO] asv-backend - Admin state disimpan.
+2026-02-18 16:08:39,896 [INFO] asv-backend - State diupdate oleh 'admin': {'theme': 'dark'}
