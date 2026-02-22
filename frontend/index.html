@@ -1,396 +1,454 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="id" data-theme="dark">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ASV Monitoring Dashboard</title>
     <link rel="icon" type="image/x-icon" href="assets/favicon.ico">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
 </head>
-<body>
-    <!-- Header -->
-    <header class="header">
-        <div class="header-left">
-            <div class="traffic-lights">
-                <span class="light red"></span>
-                <span class="light yellow"></span>
-                <span class="light green"></span>
-            </div>
-        </div>
-        <div class="header-center">
-            <!-- Title gambar: ganti otomatis sesuai tema -->
-            <img src="assets/title-dark.png" alt="ASV Monitoring System" class="header-title-img" id="headerTitle">
-        </div>
-        <div class="header-right">
-            <!-- Logo institute dan logo ship berdampingan -->
-            <div class="header-logos">
-                <img src="assets/logo-institute.png" alt="Logo Institute" class="header-logo" id="logoInstitute">
-                <div class="header-logo-divider"></div>
-                <img src="assets/logo-ship.png" alt="Logo Ship" class="header-logo" id="logoShip">
-            </div>
-            <button class="theme-toggle" id="themeToggle">
-                <span class="theme-icon">🌙</span>
-            </button>
-        </div>
-    </header>
 
-    <!-- Navigation Tabs -->
-    <nav class="nav-tabs">
-        <button class="tab-btn active" data-tab="monitoring">
-            <span class="tab-icon">📊</span> Monitoring
-        </button>
-        <button class="tab-btn" data-tab="trajectory">
-            <span class="tab-icon">📈</span> Trajectory
-        </button>
-        <button class="tab-btn" data-tab="gallery">
-            <span class="tab-icon">🖼️</span> Gallery
-        </button>
-        <button class="tab-btn" data-tab="admin">
-            <span class="tab-icon">⚙️</span> Admin
-            <span class="admin-badge" id="adminBadge" style="display:none;">●</span>
-        </button>
-    </nav>
-
-    <!-- Main Content -->
-    <main class="main-content">
-        
-        <!-- Monitoring Tab -->
-        <div class="tab-content active" id="monitoring">
-            <div class="dashboard-grid">
-                
-                <!-- Left Column: Video & CV -->
-                <div class="dashboard-col">
-
-                    <!-- Informasi Kapal -->
-                    <section class="card ship-info-card">
-                        <div class="card-header">
-                            <h2>Informasi Kapal</h2>
-                            <span class="ship-status-badge">● Aktif</span>
-                        </div>
-                        <div class="ship-info-body">
-                            <div class="ship-model-wrap">
-                                <img
-                                    src="assets/model-kapal-removebg-preview.png"
-                                    alt="Model Kapal ASV"
-                                    class="ship-model-img"
-                                    id="shipModelImg"
-                                >
-                            </div>
-                            <div class="ship-details">
-                                <div class="ship-detail-row">
-                                    <span class="ship-detail-label">Nama Kapal</span>
-                                    <span class="ship-detail-value">ASV-01</span>
-                                </div>
-                                <div class="ship-detail-row">
-                                    <span class="ship-detail-label">Tipe</span>
-                                    <span class="ship-detail-value">Autonomous Surface Vehicle</span>
-                                </div>
-                                <div class="ship-detail-row">
-                                    <span class="ship-detail-label">Default Track</span>
-                                    <span class="ship-detail-value" id="shipTrackInfo">Lintasan A</span>
-                                </div>
-                                <div class="ship-detail-row">
-                                    <span class="ship-detail-label">Mode</span>
-                                    <span class="ship-detail-value ship-mode-auto">Autonomous</span>
-                                </div>
-                            </div>
-                        </div>
-                    </section>
-                    
-                    <!-- Video Feed -->
-                    <section class="card video-card">
-                        <div class="card-header">
-                            <h2>Live Camera Feed</h2>
-                            <div class="status-indicator">
-                                <span class="status-dot recording"></span>
-                                <span>LIVE</span>
-                            </div>
-                        </div>
-                        <div class="video-container">
-                            <div class="video-placeholder">
-                                <span class="video-icon">📹</span>
-                                <p>Camera Stream</p>
-                            </div>
-                        </div>
-                    </section>
-
-                    <!-- Computer Vision Stats -->
-                    <section class="card cv-stats">
-                        <div class="card-header">
-                            <h2>Computer Vision Detection</h2>
-                        </div>
-                        <div class="cv-grid">
-                            <div class="cv-item red">
-                                <div class="cv-icon">🔴</div>
-                                <div class="cv-label">Red Buoy</div>
-                                <div class="cv-count" id="cvRed">0</div>
-                            </div>
-                            <div class="cv-item green">
-                                <div class="cv-icon">🟢</div>
-                                <div class="cv-label">Green Buoy</div>
-                                <div class="cv-count" id="cvGreen">0</div>
-                            </div>
-                            <div class="cv-item track">
-                                <div class="cv-icon">🎯</div>
-                                <div class="cv-label">Track Detected</div>
-                                <div class="cv-count" id="cvTrack">0</div>
-                            </div>
-                        </div>
-                    </section>
-
+<body class="dark-theme">
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="header-logos">
+                    <!-- Original logos kept, but scaled for sidebar -->
+                    <img src="assets/logo-institute.png" alt="Logo Institute" class="header-logo" id="logoInstitute">
+                    <!-- Divider if needed -->
+                    <img src="assets/logo-ship.png" alt="Logo Ship" class="header-logo" id="logoShip">
                 </div>
+                <!-- <img src="assets/title-dark.png" alt="ASV Monitoring System" class="header-title-img" id="headerTitle"> -->
+                <h1 class="sidebar-brand">ASV Monitor</h1>
 
-                <!-- Right Column: Map & Sensor Data -->
-                <div class="dashboard-col">
-                    
-                    <!-- Map -->
-                    <section class="card map-card">
-                        <div class="card-header">
-                            <h2>Real-time GPS Map</h2>
-                            <div class="map-controls">
-                                <select id="trackSelector" class="track-select">
-                                    <option value="A">Lintasan A</option>
-                                    <option value="B">Lintasan B</option>
-                                    <option value="Z">Lintasan Z</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div id="map" class="map-container"></div>
-                    </section>
-
-                    <!-- Sensor Data -->
-                    <section class="card sensor-card">
-                        <div class="card-header">
-                            <h2>Sensor Data</h2>
-                            <span class="update-time" id="updateTime">Updated: --:--:--</span>
-                        </div>
-                        <div class="sensor-grid">
-                            <div class="sensor-item">
-                                <div class="sensor-icon">🧭</div>
-                                <div class="sensor-info">
-                                    <div class="sensor-label">Heading</div>
-                                    <div class="sensor-value" id="heading">0°</div>
-                                </div>
-                            </div>
-                            <div class="sensor-item">
-                                <div class="sensor-icon">⚡</div>
-                                <div class="sensor-info">
-                                    <div class="sensor-label">Speed</div>
-                                    <div class="sensor-value" id="speed">0.0 kts</div>
-                                </div>
-                            </div>
-                            <div class="sensor-item">
-                                <div class="sensor-icon">🌡️</div>
-                                <div class="sensor-info">
-                                    <div class="sensor-label">Temperature</div>
-                                    <div class="sensor-value" id="temperature">--°C</div>
-                                </div>
-                            </div>
-                            <div class="sensor-item">
-                                <div class="sensor-icon">💧</div>
-                                <div class="sensor-info">
-                                    <div class="sensor-label">Humidity</div>
-                                    <div class="sensor-value" id="humidity">--%</div>
-                                </div>
-                            </div>
-                            <div class="sensor-item">
-                                <div class="sensor-icon">📍</div>
-                                <div class="sensor-info">
-                                    <div class="sensor-label">Latitude</div>
-                                    <div class="sensor-value" id="latitude">--.------</div>
-                                </div>
-                            </div>
-                            <div class="sensor-item">
-                                <div class="sensor-icon">📍</div>
-                                <div class="sensor-info">
-                                    <div class="sensor-label">Longitude</div>
-                                    <div class="sensor-value" id="longitude">---.------</div>
-                                </div>
-                            </div>
-                        </div>
-                    </section>
-
-                </div>
-
+                <!-- Hidden original title img to prevent JS errors -->
+                <img src="assets/title-dark.png" id="headerTitle" style="display:none;">
             </div>
-        </div>
 
-        <!-- Trajectory Tab -->
-        <div class="tab-content" id="trajectory">
-            <div class="trajectory-container">
-                <section class="card chart-card">
-                    <div class="card-header">
-                        <h2>Trajectory & Performa</h2>
-                    </div>
-                    <div class="chart-placeholder">
-                        <canvas id="trajectoryChart"></canvas>
-                    </div>
-                </section>
-
-                <section class="card chart-card">
-                    <div class="card-header">
-                        <h2>Speed Over Time</h2>
-                    </div>
-                    <div class="chart-placeholder">
-                        <canvas id="speedChart"></canvas>
-                    </div>
-                </section>
-            </div>
-        </div>
-
-        <!-- Gallery Tab -->
-        <div class="tab-content" id="gallery">
-            <section class="card gallery-card">
-                <div class="card-header">
-                    <h2>Captured Images</h2>
-                    <div class="gallery-controls">
-                        <button class="btn btn-secondary" id="refreshGallery">
-                            <span>🔄</span> Refresh
+            <div class="sidebar-nav">
+                <div class="nav-section">
+                    <h3 class="nav-section-title">Main Menu</h3>
+                    <nav class="nav-tabs">
+                        <button class="tab-btn active" data-tab="monitoring">
+                            <span class="tab-icon">🏠</span>
+                            <span>Dashboard</span>
                         </button>
-                        <button class="btn btn-danger" id="clearGallery">
-                            <span>🗑️</span> Clear All
+                        <button class="tab-btn" data-tab="trajectory">
+                            <span class="tab-icon">📈</span>
+                            <span>Trajectory</span>
                         </button>
-                    </div>
-                </div>
-                <div class="gallery-grid" id="galleryGrid">
-                    <div class="gallery-empty">
-                        <span class="gallery-empty-icon">📷</span>
-                        <p>No images captured yet</p>
-                    </div>
-                </div>
-            </section>
-        </div>
-
-        <!-- Admin Tab -->
-        <div class="tab-content" id="admin">
-            <div class="admin-container">
-                
-                <section class="card admin-card">
-                    <div class="card-header">
-                        <h2>System Configuration</h2>
-                        <button class="btn btn-danger btn-sm" id="adminLogoutBtn">
-                            <span>🔒</span> Logout
+                        <button class="tab-btn" data-tab="gallery">
+                            <span class="tab-icon">🖼️</span>
+                            <span>Gallery</span>
                         </button>
-                    </div>
-                    <div class="admin-content">
-                        
-                        <!-- Theme Settings -->
-                        <div class="admin-section">
-                            <h3>Theme Settings</h3>
-                            <div class="form-group">
-                                <label for="adminTheme">Theme Mode</label>
-                                <select id="adminTheme" class="form-control">
-                                    <option value="light">Light</option>
-                                    <option value="dark">Dark</option>
-                                </select>
-                            </div>
-                        </div>
+                    </nav>
+                </div>
 
-                        <!-- Track Settings -->
-                        <div class="admin-section">
-                            <h3>Track Configuration</h3>
-                            <div class="form-group">
-                                <label for="adminTrack">Default Track</label>
-                                <select id="adminTrack" class="form-control">
-                                    <option value="A">Lintasan A</option>
-                                    <option value="B">Lintasan B</option>
-                                    <option value="Z">Lintasan Z</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <!-- CV Counts -->
-                        <div class="admin-section">
-                            <h3>Detection Counts (Manual Override)</h3>
-                            <div class="form-group">
-                                <label for="adminRed">Red Buoy Count</label>
-                                <input type="number" id="adminRed" class="form-control" value="0" min="0">
-                            </div>
-                            <div class="form-group">
-                                <label for="adminGreen">Green Buoy Count</label>
-                                <input type="number" id="adminGreen" class="form-control" value="0" min="0">
-                            </div>
-                            <div class="form-group">
-                                <label for="adminTrack">Track Count</label>
-                                <input type="number" id="adminTrackCount" class="form-control" value="0" min="0">
-                            </div>
-                        </div>
-
-                        <!-- Actions -->
-                        <div class="admin-actions">
-                            <button class="btn btn-primary" id="saveAdminSettings">
-                                <span>💾</span> Save Settings
-                            </button>
-                            <button class="btn btn-secondary" id="resetAdminSettings">
-                                <span>🔄</span> Reset to Default
-                            </button>
-                        </div>
-
-                    </div>
-                </section>
-
-                <!-- Upload Section -->
-                <section class="card admin-card">
-                    <div class="card-header">
-                        <h2>File Upload</h2>
-                    </div>
-                    <div class="admin-content">
-                        <div class="upload-section">
-                            <h3>Upload CSV Track Data</h3>
-                            <div class="upload-area" id="csvUploadArea">
-                                <input type="file" id="csvFileInput" accept=".csv" hidden>
-                                <label for="csvFileInput" class="upload-label">
-                                    <span class="upload-icon">📄</span>
-                                    <span>Click to upload CSV file</span>
-                                </label>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-
+                <div class="nav-section">
+                    <h3 class="nav-section-title">System</h3>
+                    <nav class="nav-tabs">
+                        <button class="tab-btn" data-tab="admin">
+                            <span class="tab-icon">⚙️</span>
+                            <span>Configuration</span>
+                            <span class="admin-badge" id="adminBadge" style="display:none;">●</span>
+                        </button>
+                    </nav>
+                </div>
             </div>
+        </aside>
+
+        <!-- Main Workspace -->
+        <div class="main-workspace">
+            <!-- Topbar -->
+            <header class="topbar">
+                <div class="topbar-search">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" placeholder="Search parameters...">
+                </div>
+
+                <div class="topbar-right">
+                    <div class="sync-switch">
+                        <span class="sync-label">Automated Sync</span>
+                        <div class="switch">
+                            <input type="checkbox" checked id="autoSync">
+                            <span class="slider round"></span>
+                        </div>
+                    </div>
+
+                    <div class="profile-area">
+                        <div class="profile-avatar">👤</div>
+                        <span class="profile-name">Admin User</span>
+                    </div>
+
+                    <!-- Hidden theme toggle to prevent JS errors -->
+                    <button id="themeToggle" style="display:none;"><span class="theme-icon"></span></button>
+                </div>
+            </header>
+
+            <!-- Main Content Area -->
+            <main class="main-content">
+
+                <!-- Monitoring Tab -->
+                <div class="tab-content active" id="monitoring">
+
+                    <!-- Top metrics row (like the screenshot) -->
+                    <div class="metrics-row">
+                        <div class="metric-card">
+                            <div class="metric-header">
+                                <span class="metric-title">Red Buoys</span>
+                            </div>
+                            <div class="metric-value-row">
+                                <span class="metric-value" id="cvRed">0</span>
+                                <span class="metric-trend up">↑ 2%</span>
+                            </div>
+                            <div class="metric-mini-chart">
+                                <div class="mini-bar-red" style="width: 45%;"></div>
+                            </div>
+                        </div>
+
+                        <div class="metric-card">
+                            <div class="metric-header">
+                                <span class="metric-title">Green Buoys</span>
+                            </div>
+                            <div class="metric-value-row">
+                                <span class="metric-value" id="cvGreen">0</span>
+                                <span class="metric-trend up">↑ 5%</span>
+                            </div>
+                            <div class="metric-mini-chart">
+                                <div class="mini-bar-green" style="width: 70%;"></div>
+                            </div>
+                        </div>
+
+                        <div class="metric-card">
+                            <div class="metric-header">
+                                <span class="metric-title">Track Detected</span>
+                            </div>
+                            <div class="metric-value-row">
+                                <span class="metric-value" id="cvTrack">0</span>
+                                <span class="metric-trend fixed">-</span>
+                            </div>
+                            <div class="metric-mini-chart">
+                                <div class="mini-bar-blue" style="width: 85%;"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Layout for Dashboard -->
+                    <div class="dashboard-grid">
+
+                        <!-- Middle Area: Camera & Map -->
+                        <div class="dashboard-row">
+                            <!-- Video Feed -->
+                            <section class="card video-card">
+                                <div class="card-header">
+                                    <h2 class="card-title">Live Camera Feed</h2>
+                                    <div class="status-indicator">
+                                        <span class="status-dot recording"></span>
+                                        <span>LIVE</span>
+                                    </div>
+                                </div>
+                                <div class="video-container">
+                                    <div class="video-placeholder">
+                                        <span class="video-icon">📹</span>
+                                        <p>Camera Stream</p>
+                                    </div>
+                                </div>
+                            </section>
+
+                            <!-- Map -->
+                            <section class="card map-card">
+                                <div class="card-header">
+                                    <h2 class="card-title">Real-time Map</h2>
+                                    <div class="map-controls">
+                                        <select id="trackSelector" class="track-select">
+                                            <option value="A">Lintasan A</option>
+                                            <option value="B">Lintasan B</option>
+                                            <option value="Z">Lintasan Z</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div id="map" class="map-container"></div>
+                            </section>
+                        </div>
+
+                        <!-- Bottom Area: Ship Info & Sensor Data -->
+                        <div class="dashboard-row-bottom">
+
+                            <!-- Ship Info -->
+                            <section class="card ship-info-card">
+                                <div class="card-header">
+                                    <h2 class="card-title">Ship Status</h2>
+                                    <span class="ship-status-badge">● Active Fleet</span>
+                                </div>
+                                <div class="ship-info-body">
+                                    <div class="ship-model-wrap">
+                                        <img src="assets/model-kapal-removebg-preview.png" alt="Model"
+                                            class="ship-model-img" id="shipModelImg">
+                                    </div>
+                                    <div class="ship-details">
+                                        <div class="ship-stat-line">
+                                            <span class="stat-label">Model</span>
+                                            <span class="stat-val">ASV-01</span>
+                                        </div>
+                                        <div class="ship-progress-bar">
+                                            <div class="fill" style="width: 100%;"></div>
+                                        </div>
+
+                                        <div class="ship-stat-line">
+                                            <span class="stat-label">Track</span>
+                                            <span class="stat-val" id="shipTrackInfo">Lintasan A</span>
+                                        </div>
+                                        <div class="ship-progress-bar">
+                                            <div class="fill green" style="width: 80%;"></div>
+                                        </div>
+
+                                        <div class="ship-stat-line">
+                                            <span class="stat-label">Mode</span>
+                                            <span class="stat-val ship-mode-auto">Autonomous</span>
+                                        </div>
+                                        <div class="ship-progress-bar">
+                                            <div class="fill blue" style="width: 60%;"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </section>
+
+                            <!-- Sensor Data (Telemetry) -->
+                            <section class="card sensor-card">
+                                <div class="card-header">
+                                    <h2 class="card-title">Telemetry Data</h2>
+                                    <span class="update-time" id="updateTime">--:--:--</span>
+                                </div>
+                                <div class="sensor-grid">
+                                    <div class="sensor-row">
+                                        <span class="sensor-label">Heading</span>
+                                        <div class="sensor-val-bar">
+                                            <span class="sensor-value" id="heading">0°</span>
+                                            <div class="bar-bg">
+                                                <div class="bar-fill yellow" style="width: 45%;"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="sensor-row">
+                                        <span class="sensor-label">Speed</span>
+                                        <div class="sensor-val-bar">
+                                            <span class="sensor-value" id="speed">0.0 kts</span>
+                                            <div class="bar-bg">
+                                                <div class="bar-fill red" style="width: 30%;"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="sensor-row">
+                                        <span class="sensor-label">Temp</span>
+                                        <div class="sensor-val-bar">
+                                            <span class="sensor-value" id="temperature">--°C</span>
+                                            <div class="bar-bg">
+                                                <div class="bar-fill green" style="width: 60%;"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="sensor-row">
+                                        <span class="sensor-label">Humid</span>
+                                        <div class="sensor-val-bar">
+                                            <span class="sensor-value" id="humidity">--%</span>
+                                            <div class="bar-bg">
+                                                <div class="bar-fill blue" style="width: 50%;"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="sensor-row">
+                                        <span class="sensor-label">Lat</span>
+                                        <div class="sensor-val-bar">
+                                            <span class="sensor-value highlight" id="latitude">--.------</span>
+                                        </div>
+                                    </div>
+                                    <div class="sensor-row">
+                                        <span class="sensor-label">Lon</span>
+                                        <div class="sensor-val-bar">
+                                            <span class="sensor-value highlight" id="longitude">---.------</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </section>
+
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- Trajectory Tab -->
+                <div class="tab-content" id="trajectory">
+                    <div class="trajectory-container">
+                        <section class="card chart-card">
+                            <div class="card-header">
+                                <h2 class="card-title">Behavioral Trajectory Map</h2>
+                            </div>
+                            <div class="chart-placeholder">
+                                <canvas id="trajectoryChart"></canvas>
+                            </div>
+                        </section>
+
+                        <section class="card chart-card">
+                            <div class="card-header">
+                                <h2 class="card-title">Speed Performance Over Time</h2>
+                            </div>
+                            <div class="chart-placeholder">
+                                <canvas id="speedChart"></canvas>
+                            </div>
+                        </section>
+                    </div>
+                </div>
+
+                <!-- Gallery Tab -->
+                <div class="tab-content" id="gallery">
+                    <section class="card gallery-card">
+                        <div class="card-header">
+                            <h2 class="card-title">Captured Images Archive</h2>
+                            <div class="gallery-controls">
+                                <button class="action-btn" id="refreshGallery">
+                                    🔄 Refresh
+                                </button>
+                                <button class="action-btn danger" id="clearGallery">
+                                    🗑️ Clear Data
+                                </button>
+                            </div>
+                        </div>
+                        <div class="gallery-grid" id="galleryGrid">
+                            <div class="gallery-empty">
+                                <span class="gallery-empty-icon">📷</span>
+                                <p>No images found in the archive.</p>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+
+                <!-- Admin Tab -->
+                <div class="tab-content" id="admin">
+                    <div class="admin-container">
+                        <section class="card admin-card">
+                            <div class="card-header">
+                                <h2 class="card-title">System Configuration</h2>
+                                <button class="action-btn danger" id="adminLogoutBtn">
+                                    🔒 End Session
+                                </button>
+                            </div>
+                            <div class="admin-content">
+
+                                <div class="admin-section">
+                                    <h3>Display Preferences</h3>
+                                    <div class="form-group">
+                                        <label for="adminTheme">Theme Engine</label>
+                                        <select id="adminTheme" class="dark-input">
+                                            <option value="dark">Dark UI (Default)</option>
+                                            <option value="light">Light UI (Depr)</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="admin-section">
+                                    <h3>Navigation Settings</h3>
+                                    <div class="form-group">
+                                        <label for="adminTrack">Active Route</label>
+                                        <select id="adminTrack" class="dark-input">
+                                            <option value="A">Lintasan A</option>
+                                            <option value="B">Lintasan B</option>
+                                            <option value="Z">Lintasan Z</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="admin-section">
+                                    <h3>Manual Detection Override</h3>
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label for="adminRed">Red Buoy Counts</label>
+                                            <input type="number" id="adminRed" class="dark-input" value="0" min="0">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="adminGreen">Green Buoy Counts</label>
+                                            <input type="number" id="adminGreen" class="dark-input" value="0" min="0">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="adminTrackCount">Track Found</label>
+                                            <input type="number" id="adminTrackCount" class="dark-input" value="0"
+                                                min="0">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="admin-actions">
+                                    <button class="action-btn primary" id="saveAdminSettings">💾 Save Changes</button>
+                                    <button class="action-btn" id="resetAdminSettings">🔄 Reset Config</button>
+                                </div>
+                            </div>
+                        </section>
+
+                        <section class="card admin-card">
+                            <div class="card-header">
+                                <h2 class="card-title">Data Ingestion</h2>
+                            </div>
+                            <div class="admin-content">
+                                <div class="upload-section">
+                                    <p class="section-desc">Upload external CSV telemetry tracking logs.</p>
+                                    <div class="upload-zone" id="csvUploadArea">
+                                        <input type="file" id="csvFileInput" accept=".csv" hidden>
+                                        <label for="csvFileInput" class="upload-label">
+                                            <div class="upload-icon">📄</div>
+                                            <span>Drop CSV files here or click to browse</span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                </div>
+
+            </main>
+
+            <footer class="system-footer">
+                <div class="footer-left">Network Status: <span id="connectionStatus" class="status-connected">●
+                        Connected securely</span></div>
+                <div class="footer-right">ASV Core Systems 2.0</div>
+            </footer>
         </div>
+    </div>
 
-    </main>
-
-    <!-- Footer -->
-    <footer class="footer">
-        <p>ASV Monitoring System © 2025 | Status: <span id="connectionStatus" class="status-connected">Connected</span></p>
-    </footer>
-
-    <!-- Modal for Image Preview -->
+    <!-- Modals -->
     <div class="modal" id="imageModal">
         <div class="modal-content">
-            <span class="modal-close">&times;</span>
-            <img id="modalImage" src="" alt="Preview">
-            <div class="modal-actions">
-                <button class="btn btn-danger" id="deleteImageBtn">Delete Image</button>
+            <button class="modal-close">&times;</button>
+            <div class="modal-img-wrapper">
+                <img id="modalImage" src="" alt="Preview">
+            </div>
+            <div class="modal-actions-bar">
+                <button class="action-btn danger" id="deleteImageBtn">Delete Record</button>
             </div>
         </div>
     </div>
 
-    <!-- Modal Admin Login -->
-    <div class="modal admin-login-overlay" id="adminLoginModal">
-        <div class="admin-login-box">
-            <h2 class="admin-login-title">ADMIN LOGIN</h2>
-            <div class="admin-login-form">
-                <input
-                    type="text"
-                    id="adminUsername"
-                    class="admin-login-input"
-                    placeholder="Username"
-                    autocomplete="off"
-                />
-                <input
-                    type="password"
-                    id="adminPassword"
-                    class="admin-login-input"
-                    placeholder="Password"
-                />
-                <p class="admin-login-error" id="adminLoginError"></p>
-                <button class="admin-login-btn primary" id="adminLoginBtn">LOGINS</button>
-                <button class="admin-login-btn secondary" id="adminLoginCancel">BATAL</button>
+    <div class="modal auth-modal" id="adminLoginModal">
+        <div class="auth-box">
+            <h2 class="auth-title">System Access</h2>
+            <p class="auth-subtitle">Verify administrative credentials</p>
+            <div class="auth-form">
+                <div class="input-group">
+                    <span class="input-icon">👤</span>
+                    <input type="text" id="adminUsername" class="auth-input" placeholder="Operator ID"
+                        autocomplete="off" />
+                </div>
+                <div class="input-group">
+                    <span class="input-icon">🔑</span>
+                    <input type="password" id="adminPassword" class="auth-input" placeholder="Passcode" />
+                </div>
+                <p class="auth-error" id="adminLoginError"></p>
+                <div class="auth-buttons">
+                    <button class="action-btn primary full-width" id="adminLoginBtn">Authenticate</button>
+                    <button class="action-btn full-width" id="adminLoginCancel">Cancel</button>
+                </div>
             </div>
         </div>
     </div>
@@ -400,4 +458,5 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="app.js"></script>
 </body>
+
 </html>

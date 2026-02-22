@@ -1,7 +1,8 @@
 // ============================================
 // Configuration
 // ============================================
-const API_BASE_URL = 'http://localhost:8000';
+// Use relative path for API calls since frontend & backend are served from the same domain by Nginx
+const API_BASE_URL = '';
 const UPDATE_INTERVAL = 2000;
 
 // ============================================
@@ -83,8 +84,8 @@ function setTheme(theme) {
     const headerTitle = document.getElementById('headerTitle');
     if (headerTitle) {
         headerTitle.src = theme === 'dark'
-            ? 'http://localhost:8000/assets/title-dark.png'
-            : 'http://localhost:8000/assets/title-light.png';
+            ? 'assets/title-dark.png'
+            : 'assets/title-light.png';
     }
 }
 

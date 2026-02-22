@@ -86,7 +86,7 @@ class CVCounts(BaseModel):
 
 
 class AdminState(BaseModel):
-    theme:        Literal["light", "dark"] = "light"
+    theme:        Literal["light", "dark"] = "dark"
     defaultTrack: str = Field("A", min_length=1, max_length=10)
     cv_counts:    CVCounts = Field(default_factory=CVCounts)
 
