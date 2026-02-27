@@ -13,19 +13,14 @@
 
 <body class="dark-theme">
     <div class="app-container">
-        <!-- Sidebar -->
         <aside class="sidebar">
             <div class="sidebar-header">
                 <div class="header-logos">
-                    <!-- Original logos kept, but scaled for sidebar -->
                     <img src="assets/logo-institute.png" alt="Logo Institute" class="header-logo" id="logoInstitute">
-                    <!-- Divider if needed -->
                     <img src="assets/logo-ship.png" alt="Logo Ship" class="header-logo" id="logoShip">
                 </div>
-                <!-- <img src="assets/title-dark.png" alt="ASV Monitoring System" class="header-title-img" id="headerTitle"> -->
                 <h1 class="sidebar-brand">ASV Monitor</h1>
 
-                <!-- Hidden original title img to prevent JS errors -->
                 <img src="assets/title-dark.png" id="headerTitle" style="display:none;">
             </div>
 
@@ -61,9 +56,7 @@
             </div>
         </aside>
 
-        <!-- Main Workspace -->
         <div class="main-workspace">
-            <!-- Topbar -->
             <header class="topbar">
                 <div class="topbar-search">
                     <span class="search-icon">🔍</span>
@@ -84,18 +77,14 @@
                         <span class="profile-name">Admin User</span>
                     </div>
 
-                    <!-- Hidden theme toggle to prevent JS errors -->
                     <button id="themeToggle" style="display:none;"><span class="theme-icon"></span></button>
                 </div>
             </header>
 
-            <!-- Main Content Area -->
             <main class="main-content">
 
-                <!-- Monitoring Tab -->
                 <div class="tab-content active" id="monitoring">
 
-                    <!-- Top metrics row (like the screenshot) -->
                     <div class="metrics-row">
                         <div class="metric-card">
                             <div class="metric-header">
@@ -137,12 +126,9 @@
                         </div>
                     </div>
 
-                    <!-- Layout for Dashboard -->
                     <div class="dashboard-grid">
 
-                        <!-- Middle Area: Camera & Map -->
                         <div class="dashboard-row">
-                            <!-- Video Feed -->
                             <section class="card video-card">
                                 <div class="card-header">
                                     <h2 class="card-title">Live Camera Feed</h2>
@@ -159,7 +145,6 @@
                                 </div>
                             </section>
 
-                            <!-- Map -->
                             <section class="card map-card">
                                 <div class="card-header">
                                     <h2 class="card-title">Real-time Map</h2>
@@ -175,10 +160,8 @@
                             </section>
                         </div>
 
-                        <!-- Bottom Area: Ship Info & Sensor Data -->
                         <div class="dashboard-row-bottom">
 
-                            <!-- Ship Info -->
                             <section class="card ship-info-card">
                                 <div class="card-header">
                                     <h2 class="card-title">Ship Status</h2>
@@ -217,7 +200,6 @@
                                 </div>
                             </section>
 
-                            <!-- Sensor Data (Telemetry) -->
                             <section class="card sensor-card">
                                 <div class="card-header">
                                     <h2 class="card-title">Telemetry Data</h2>
@@ -280,7 +262,6 @@
                     </div>
                 </div>
 
-                <!-- Trajectory Tab -->
                 <div class="tab-content" id="trajectory">
                     <div class="trajectory-container">
                         <section class="card chart-card">
@@ -303,7 +284,6 @@
                     </div>
                 </div>
 
-                <!-- Gallery Tab -->
                 <div class="tab-content" id="gallery">
                     <section class="card gallery-card">
                         <div class="card-header">
@@ -326,7 +306,6 @@
                     </section>
                 </div>
 
-                <!-- Admin Tab -->
                 <div class="tab-content" id="admin">
                     <div class="admin-container">
                         <section class="card admin-card">
@@ -417,7 +396,6 @@
         </div>
     </div>
 
-    <!-- Modals -->
     <div class="modal" id="imageModal">
         <div class="modal-content">
             <button class="modal-close">&times;</button>
@@ -453,7 +431,6 @@
         </div>
     </div>
 
-    <!-- Scripts -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="app.js"></script>

@@ -13,9 +13,6 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from pydantic import BaseModel, Field, field_validator
 
-# ============================================================
-# LOGGING SETUP
-# ============================================================
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(name)s - %(message)s",
@@ -26,9 +23,6 @@ logging.basicConfig(
 )
 logger = logging.getLogger("asv-backend")
 
-# ============================================================
-# APP & CONFIG
-# ============================================================
 app = FastAPI(
     title="ASV Backend",
     description="Backend monitoring Autonomous Surface Vehicle dengan autentikasi JWT.",
@@ -37,8 +31,7 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],   # Ganti dengan domain spesifik di production
-    allow_methods=["*"],
+    allow_origins=["*"],       allow_methods=["*"],
     allow_headers=["*"],
 )
 
@@ -53,31 +46,21 @@ os.makedirs(ASSETS_DIR,  exist_ok=True)
 app.mount("/uploads", StaticFiles(directory=UPLOADS_DIR), name="uploads")
 app.mount("/assets",  StaticFiles(directory=ASSETS_DIR),  name="assets")
 
-# ============================================================
-# JWT CONFIG  (ganti SECRET_KEY dengan nilai acak yang kuat!)
-# ============================================================
 SECRET_KEY      = os.environ.get("ASV_SECRET_KEY", "ganti-dengan-secret-acak-yang-panjang-dan-kuat")
 ALGORITHM       = "HS256"
 TOKEN_EXPIRE_HOURS = 8
 
-# Kredensial admin  (idealnya simpan di env var / database)
 ADMIN_USERNAME = os.environ.get("ASV_ADMIN_USER", "admin")
 ADMIN_PASSWORD = os.environ.get("ASV_ADMIN_PASS", "asv2025")
 
 security = HTTPBearer()
 
-# ============================================================
-# KONSTANTA VALIDASI
-# ============================================================
 ALLOWED_IMAGE_TYPES = {"image/jpeg", "image/png", "image/webp"}
 ALLOWED_CSV_TYPES   = {"text/csv", "application/csv", "text/plain"}
 MAX_IMAGE_SIZE_MB   = 10
 MAX_CSV_SIZE_MB     = 5
 MAX_FILENAME_LEN    = 100
 
-# ============================================================
-# PYDANTIC MODELS
-# ============================================================
 
 class CVCounts(BaseModel):
     red:   int = Field(0, ge=0, description="Jumlah deteksi red buoy")
@@ -120,15 +103,10 @@ class LoginRequest(BaseModel):
 class LoginResponse(BaseModel):
     access_token: str
     token_type:   str = "bearer"
-    expires_in:   int  # detik
+    expires_in:   int  
 
-
-# ============================================================
-# STATE MANAGEMENT (thread-safe dengan Lock)
-# ============================================================
 _state_lock  = threading.Lock()
-_admin_state = AdminState()   # default
-
+_admin_state = AdminState()   
 
 def load_state() -> None:
     global _admin_state
@@ -160,9 +138,6 @@ def startup() -> None:
     logger.info("ASV Backend v2.0 siap.")
 
 
-# ============================================================
-# JWT HELPERS
-# ============================================================
 
 def create_access_token(username: str) -> str:
     expire  = datetime.utcnow() + timedelta(hours=TOKEN_EXPIRE_HOURS)
@@ -187,9 +162,6 @@ def verify_token(credentials: HTTPAuthorizationCredentials = Depends(security)) 
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token tidak valid.")
 
 
-# ============================================================
-# UPLOAD HELPERS
-# ============================================================
 
 def _safe_filename(filename: str) -> str:
     """Hapus karakter berbahaya untuk mencegah path traversal."""
@@ -211,7 +183,6 @@ def _validate_and_save(
     """Validasi tipe & ukuran file, lalu simpan. Return nama file yang aman."""
     safe_name = _safe_filename(file.filename or "upload")
 
-    # Validasi content-type
     ct = (file.content_type or "").lower()
     if ct not in allowed_types:
         raise HTTPException(
@@ -219,7 +190,6 @@ def _validate_and_save(
             detail=f"Tipe file '{ct}' tidak diizinkan. Tipe yang diterima: {allowed_types}",
         )
 
-    # Baca & validasi ukuran
     data = file.file.read()
     max_bytes = int(max_mb * 1024 * 1024)
     if len(data) > max_bytes:
@@ -236,9 +206,6 @@ def _validate_and_save(
     return safe_name
 
 
-# ============================================================
-# ENDPOINTS — PUBLIC
-# ============================================================
 
 @app.get("/", tags=["Info"])
 def root():
@@ -260,7 +227,6 @@ def login(body: LoginRequest):
     return LoginResponse(access_token=token, expires_in=expires)
 
 
-# State & gambar boleh dibaca tanpa token (untuk monitoring publik)
 @app.get("/api/admin/state", response_model=AdminState, tags=["Admin"])
 def get_admin_state():
     return _admin_state
@@ -283,9 +249,6 @@ def get_images():
         raise HTTPException(status_code=500, detail="Gagal membaca daftar gambar.")
 
 
-# ============================================================
-# ENDPOINTS — PROTECTED (butuh JWT)
-# ============================================================
 
 @app.post("/api/admin/update", response_model=AdminState, tags=["Admin"])
 def update_admin_state(
@@ -297,7 +260,6 @@ def update_admin_state(
     with _state_lock:
         current = _admin_state.model_dump()
         updates  = payload.model_dump(exclude_none=True)
-        # Merge cv_counts secara mendalam
         if "cv_counts" in updates and current.get("cv_counts"):
             current["cv_counts"].update(updates.pop("cv_counts"))
         current.update(updates)

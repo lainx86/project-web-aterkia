@@ -1,13 +1,6 @@
-// ============================================
-// Configuration
-// ============================================
-// Use relative path for API calls since frontend & backend are served from the same domain by Nginx
 const API_BASE_URL = '';
 const UPDATE_INTERVAL = 2000;
 
-// ============================================
-// State Management
-// ============================================
 let currentTheme = 'light';
 let map = null;
 let markers = [];
@@ -16,13 +9,8 @@ let speedChart = null;
 let currentTrack = 'A';
 let selectedImageFilename = null;
 
-// Admin Auth State
 let isAdminLoggedIn = false;
-let adminToken = null;  // JWT token dari backend
-
-// ============================================
-// Token Helpers
-// ============================================
+let adminToken = null;  
 function saveToken(token) {
     adminToken = token;
     sessionStorage.setItem('adminToken', token);
@@ -45,12 +33,8 @@ function authHeaders() {
     };
 }
 
-// ============================================
-// Initialize App
-// ============================================
 document.addEventListener('DOMContentLoaded', () => {
-    loadToken();  // restore JWT session jika ada
-    initTheme();
+    loadToken();      initTheme();
     initTabs();
     initMap();
     initCharts();
@@ -64,9 +48,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-// ============================================
-// Theme Management
-// ============================================
 function initTheme() {
     const savedTheme = localStorage.getItem('theme') || 'light';
     setTheme(savedTheme);
@@ -80,7 +61,6 @@ function setTheme(theme) {
     const themeIcon = document.querySelector('.theme-icon');
     themeIcon.textContent = theme === 'dark' ? '☀️' : '🌙';
 
-    // Ganti title image sesuai tema
     const headerTitle = document.getElementById('headerTitle');
     if (headerTitle) {
         headerTitle.src = theme === 'dark'
@@ -93,13 +73,9 @@ function toggleTheme() {
     const newTheme = currentTheme === 'light' ? 'dark' : 'light';
     setTheme(newTheme);
 
-    // Update theme di backend juga
     updateAdminState({ theme: newTheme });
 }
 
-// ============================================
-// Tab Navigation
-// ============================================
 function initTabs() {
     const tabButtons = document.querySelectorAll('.tab-btn');
     const tabContents = document.querySelectorAll('.tab-content');
@@ -108,21 +84,17 @@ function initTabs() {
         button.addEventListener('click', () => {
             const targetTab = button.getAttribute('data-tab');
 
-            // Jika klik tab admin dan belum login, tampilkan modal login
             if (targetTab === 'admin' && !isAdminLoggedIn) {
                 openAdminLoginModal();
                 return;
             }
 
-            // Remove active class from all
             tabButtons.forEach(btn => btn.classList.remove('active'));
             tabContents.forEach(content => content.classList.remove('active'));
 
-            // Add active class to selected
             button.classList.add('active');
             document.getElementById(targetTab).classList.add('active');
 
-            // Refresh map jika tab monitoring/map dibuka
             if (targetTab === 'monitoring' && map) {
                 setTimeout(() => map.invalidateSize(), 100);
             }
@@ -130,9 +102,6 @@ function initTabs() {
     });
 }
 
-// ============================================
-// Admin Login / Logout
-// ============================================
 function openAdminLoginModal() {
     const modal = document.getElementById('adminLoginModal');
     document.getElementById('adminUsername').value = '';
@@ -159,7 +128,6 @@ async function handleAdminLogin() {
         return;
     }
 
-    // Loading state
     loginBtn.textContent = 'Loading...';
     loginBtn.disabled = true;
     errorEl.textContent = '';
@@ -178,7 +146,6 @@ async function handleAdminLogin() {
 
             closeAdminLoginModal();
 
-            // Pindah ke tab admin
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
             document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
             document.querySelector('[data-tab="admin"]').classList.add('active');
@@ -210,7 +177,6 @@ function handleAdminLogout() {
     clearToken();
     document.getElementById('adminBadge').style.display = 'none';
 
-    // Kembali ke tab monitoring
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
     document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
     document.querySelector('[data-tab="monitoring"]').classList.add('active');
@@ -219,23 +185,17 @@ function handleAdminLogout() {
     showNotification('Anda telah logout dari Admin.', 'info');
 }
 
-// ============================================
-// Map Initialization
-// ============================================
 function initMap() {
-    // Initialize Leaflet map
     const defaultLat = -7.0476;
     const defaultLon = 110.4418;
 
     map = L.map('map').setView([defaultLat, defaultLon], 18);
 
-    // Add tile layer
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '© OpenStreetMap contributors',
         maxZoom: 19
     }).addTo(map);
 
-    // Load initial track
     loadTrackData(currentTrack);
 }
 
@@ -244,11 +204,8 @@ async function loadTrackData(track) {
         const response = await fetch(`${API_BASE_URL}/uploads/lintasan_${track.toLowerCase()}.csv`);
         const csvText = await response.text();
 
-        // Parse CSV
-        const lines = csvText.split('\n').slice(1); // Skip header
-        const waypoints = [];
+        const lines = csvText.split('\n').slice(1);         const waypoints = [];
 
-        // Clear existing markers
         markers.forEach(marker => map.removeLayer(marker));
         markers = [];
 
@@ -263,7 +220,6 @@ async function loadTrackData(track) {
 
             waypoints.push([latNum, lonNum]);
 
-            // Create marker with custom icon based on type
             let markerColor = 'blue';
             let markerIcon = '📍';
 
@@ -297,7 +253,6 @@ async function loadTrackData(track) {
             markers.push(marker);
         });
 
-        // Draw route line
         if (waypoints.length > 0) {
             L.polyline(waypoints, {
                 color: '#0071e3',
@@ -306,7 +261,6 @@ async function loadTrackData(track) {
                 dashArray: '10, 5'
             }).addTo(map);
 
-            // Fit map to show all markers
             map.fitBounds(waypoints);
         }
 
@@ -316,11 +270,7 @@ async function loadTrackData(track) {
     }
 }
 
-// ============================================
-// Charts Initialization
-// ============================================
 function initCharts() {
-    // Trajectory Chart
     const trajectoryCtx = document.getElementById('trajectoryChart');
     if (trajectoryCtx) {
         trajectoryChart = new Chart(trajectoryCtx, {
@@ -363,7 +313,6 @@ function initCharts() {
         });
     }
 
-    // Speed Chart
     const speedCtx = document.getElementById('speedChart');
     if (speedCtx) {
         speedChart = new Chart(speedCtx, {
@@ -403,7 +352,6 @@ function initCharts() {
 }
 
 function updateCharts() {
-    // Simulate data update untuk demo
     const now = new Date().toLocaleTimeString();
 
     if (trajectoryChart) {
@@ -431,34 +379,26 @@ function updateCharts() {
     }
 }
 
-// ============================================
-// Admin State Management
-// ============================================
 async function loadAdminState() {
     try {
         const response = await fetch(`${API_BASE_URL}/api/admin/state`);
         const state = await response.json();
 
-        // Update UI dengan state dari backend
         setTheme(state.theme);
         currentTrack = state.defaultTrack;
 
-        // Update CV counts
         document.getElementById('cvRed').textContent = state.cv_counts.red;
         document.getElementById('cvGreen').textContent = state.cv_counts.green;
         document.getElementById('cvTrack').textContent = state.cv_counts.track;
 
-        // Update admin form
         document.getElementById('adminTheme').value = state.theme;
         document.getElementById('adminTrack').value = state.defaultTrack;
         document.getElementById('adminRed').value = state.cv_counts.red;
         document.getElementById('adminGreen').value = state.cv_counts.green;
         document.getElementById('adminTrackCount').value = state.cv_counts.track;
 
-        // Update track selector
         document.getElementById('trackSelector').value = state.defaultTrack;
 
-        // Update info kapal di card
         const shipTrackInfo = document.getElementById('shipTrackInfo');
         if (shipTrackInfo) {
             shipTrackInfo.textContent = `Lintasan ${state.defaultTrack}`;
@@ -498,9 +438,6 @@ async function updateAdminState(updates) {
     }
 }
 
-// ============================================
-// Gallery Management
-// ============================================
 async function loadGallery() {
     try {
         const response = await fetch(`${API_BASE_URL}/api/images`);
@@ -608,9 +545,6 @@ async function clearAllImages() {
     }
 }
 
-// ============================================
-// File Upload
-// ============================================
 async function uploadFile(file, type = 'csv') {
     const endpoint = type === 'csv'
         ? `${API_BASE_URL}/api/upload/csv`
@@ -622,8 +556,7 @@ async function uploadFile(file, type = 'csv') {
     try {
         const response = await fetch(endpoint, {
             method: 'POST',
-            headers: { 'Authorization': `Bearer ${adminToken}` }, // tanpa Content-Type (multipart otomatis)
-            body: formData
+            headers: { 'Authorization': `Bearer ${adminToken}` },             body: formData
         });
 
         if (response.status === 401) {
@@ -644,11 +577,7 @@ async function uploadFile(file, type = 'csv') {
     }
 }
 
-// ============================================
-// Sensor Data Simulation
-// ============================================
 function updateSensorData() {
-    // Simulate sensor readings
     const now = new Date();
 
     document.getElementById('heading').textContent = `${Math.floor(Math.random() * 360)}°`;
@@ -660,53 +589,38 @@ function updateSensorData() {
     document.getElementById('updateTime').textContent = `Updated: ${now.toLocaleTimeString()}`;
 }
 
-// ============================================
-// Auto Update
-// ============================================
 function startDataUpdate() {
-    // Update sensor data
     setInterval(() => {
         updateSensorData();
         updateCharts();
     }, UPDATE_INTERVAL);
 
-    // Initial update
     updateSensorData();
 }
 
-// ============================================
-// Event Listeners
-// ============================================
 function initEventListeners() {
-    // Theme toggle
     document.getElementById('themeToggle').addEventListener('click', toggleTheme);
 
-    // Track selector
     document.getElementById('trackSelector').addEventListener('change', (e) => {
         currentTrack = e.target.value;
         loadTrackData(currentTrack);
     });
 
-    // ── Admin Login Modal ──────────────────────────
     document.getElementById('adminLoginBtn').addEventListener('click', handleAdminLogin);
     document.getElementById('adminLoginCancel').addEventListener('click', closeAdminLoginModal);
 
-    // Klik backdrop untuk tutup modal
     document.getElementById('adminLoginModal').addEventListener('click', (e) => {
         if (e.target.id === 'adminLoginModal') closeAdminLoginModal();
     });
 
-    // Enter key di form login
     ['adminUsername', 'adminPassword'].forEach(id => {
         document.getElementById(id).addEventListener('keydown', (e) => {
             if (e.key === 'Enter') handleAdminLogin();
         });
     });
 
-    // ── Admin Logout ──────────────────────────────
     document.getElementById('adminLogoutBtn').addEventListener('click', handleAdminLogout);
 
-    // Admin - Save Settings
     document.getElementById('saveAdminSettings').addEventListener('click', () => {
         const updates = {
             theme: document.getElementById('adminTheme').value,
@@ -721,7 +635,6 @@ function initEventListeners() {
         updateAdminState(updates);
     });
 
-    // Admin - Reset Settings
     document.getElementById('resetAdminSettings').addEventListener('click', () => {
         if (confirm('Reset all settings to default?')) {
             const defaults = {
@@ -738,32 +651,25 @@ function initEventListeners() {
         }
     });
 
-    // CSV File Upload
     document.getElementById('csvFileInput').addEventListener('change', (e) => {
         const file = e.target.files[0];
         if (file) {
             uploadFile(file, 'csv');
-            e.target.value = ''; // Reset input
-        }
+            e.target.value = '';         }
     });
 
-    // Gallery - Refresh
     document.getElementById('refreshGallery').addEventListener('click', loadGallery);
 
-    // Gallery - Clear All
     document.getElementById('clearGallery').addEventListener('click', clearAllImages);
 
-    // Modal - Close
     document.querySelector('.modal-close').addEventListener('click', closeImageModal);
 
-    // Modal - Delete Image
     document.getElementById('deleteImageBtn').addEventListener('click', () => {
         if (selectedImageFilename) {
             deleteImage(selectedImageFilename);
         }
     });
 
-    // Modal - Click outside to close
     document.getElementById('imageModal').addEventListener('click', (e) => {
         if (e.target.id === 'imageModal') {
             closeImageModal();
@@ -771,9 +677,6 @@ function initEventListeners() {
     });
 }
 
-// ============================================
-// Helper Functions
-// ============================================
 function updateConnectionStatus(connected) {
     const statusElement = document.getElementById('connectionStatus');
     if (connected) {
@@ -786,7 +689,6 @@ function updateConnectionStatus(connected) {
 }
 
 function showNotification(message, type = 'info') {
-    // Simple notification (bisa diganti dengan library toast yang lebih bagus)
     const colors = {
         success: '#34c759',
         error: '#ff3b30',
@@ -817,7 +719,6 @@ function showNotification(message, type = 'info') {
     }, 3000);
 }
 
-// Add animations
 const style = document.createElement('style');
 style.textContent = `
     @keyframes slideIn {

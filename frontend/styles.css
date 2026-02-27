@@ -1,10 +1,6 @@
-/* ============================================
-   ASV Monitoring Dashboard - FleetWatch Theme
-============================================ */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
 :root {
-    /* Color Palette based on screenshot */
     --bg-base: #101111;
     --bg-panel: #161717;
     --bg-card: #18191a;
@@ -12,18 +8,15 @@
     --border-color: #27282b;
     --border-light: #3a3b3e;
 
-    /* Text Colors */
     --text-primary: #f5f5f5;
     --text-secondary: #909095;
     --text-tertiary: #606065;
 
-    /* Accents */
     --accent-green: #89e289;
     --accent-red: #ff5c5c;
     --accent-yellow: #ffcf5c;
     --accent-blue: #5ca1ff;
 
-    /* Spacing & Sizes */
     --sidebar-width: 260px;
     --topbar-height: 64px;
     --radius-sm: 4px;
@@ -41,21 +34,14 @@ body {
     font-family: 'Inter', sans-serif;
     background-color: var(--bg-base);
     color: var(--text-primary);
-    overflow: hidden; /* App feels like a desktop app */
-}
+    overflow: hidden; }
 
-/* ============================================
-   Layout Structural
-============================================ */
 .app-container {
     display: flex;
     height: 100vh;
     width: 100vw;
 }
 
-/* ============================================
-   Sidebar
-============================================ */
 .sidebar {
     width: var(--sidebar-width);
     background-color: var(--bg-panel);
@@ -158,9 +144,6 @@ body {
     font-size: 0.8rem;
 }
 
-/* ============================================
-   Workspace & Topbar
-============================================ */
 .main-workspace {
     flex: 1;
     display: flex;
@@ -223,7 +206,6 @@ body {
     color: var(--text-secondary);
 }
 
-/* Toggle Switch */
 .switch {
     position: relative;
     display: inline-block;
@@ -277,9 +259,6 @@ input:checked + .slider:before { transform: translateX(16px); background-color: 
     color: var(--text-primary);
 }
 
-/* ============================================
-   Main Content Area
-============================================ */
 .main-content {
     flex: 1;
     overflow-y: auto;
@@ -300,9 +279,6 @@ input:checked + .slider:before { transform: translateX(16px); background-color: 
     to { opacity: 1; }
 }
 
-/* ============================================
-   Cards General
-============================================ */
 .card {
     background: var(--bg-card);
     border: 1px solid var(--border-color);
@@ -325,9 +301,6 @@ input:checked + .slider:before { transform: translateX(16px); background-color: 
     color: var(--text-primary);
 }
 
-/* ============================================
-   Metrics Row (Top of Dashboard)
-============================================ */
 .metrics-row {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -383,9 +356,6 @@ input:checked + .slider:before { transform: translateX(16px); background-color: 
 .mini-bar-green { height: 100%; background: var(--accent-green); }
 .mini-bar-blue { height: 100%; background: var(--accent-blue); }
 
-/* ============================================
-   Dashboard Grid Structure
-============================================ */
 .dashboard-grid {
     display: flex;
     flex-direction: column;
@@ -404,7 +374,6 @@ input:checked + .slider:before { transform: translateX(16px); background-color: 
     gap: 20px;
 }
 
-/* Video & Map */
 .video-card, .map-card { min-height: 400px; }
 
 .status-indicator {
@@ -461,7 +430,6 @@ input:checked + .slider:before { transform: translateX(16px); background-color: 
     font-size: 0.85rem;
 }
 
-/* Ship Info List */
 .ship-info-card {
     min-height: 300px;
 }
@@ -525,7 +493,6 @@ input:checked + .slider:before { transform: translateX(16px); background-color: 
     color: var(--accent-green);
 }
 
-/* Telemetry / Sensor Data */
 .sensor-card { padding-bottom: 20px; }
 
 .update-time {
@@ -583,9 +550,6 @@ input:checked + .slider:before { transform: translateX(16px); background-color: 
 .bar-fill.green { background: var(--accent-green); }
 .bar-fill.blue { background: var(--accent-blue); }
 
-/* ============================================
-   Trajectory Tab
-============================================ */
 .trajectory-container {
     display: flex;
     flex-direction: column;
@@ -597,9 +561,6 @@ input:checked + .slider:before { transform: translateX(16px); background-color: 
     padding: 16px;
 }
 
-/* ============================================
-   Gallery Tab
-============================================ */
 .gallery-grid {
     padding: 20px;
     display: grid;
@@ -649,9 +610,6 @@ input:checked + .slider:before { transform: translateX(16px); background-color: 
     margin-bottom: 16px;
 }
 
-/* ============================================
-   Admin Tab
-============================================ */
 .admin-container {
     display: flex;
     flex-direction: column;
@@ -739,9 +697,6 @@ input:checked + .slider:before { transform: translateX(16px); background-color: 
     margin-top: 24px;
 }
 
-/* ============================================
-   Footer
-============================================ */
 .system-footer {
     height: 48px;
     border-top: 1px solid var(--border-color);
@@ -758,9 +713,6 @@ input:checked + .slider:before { transform: translateX(16px); background-color: 
 .status-connected { color: var(--accent-green); }
 .status-disconnected { color: var(--accent-red); }
 
-/* ============================================
-   Buttons
-============================================ */
 .action-btn {
     background: var(--bg-hover);
     border: 1px solid var(--border-color);
@@ -801,9 +753,6 @@ input:checked + .slider:before { transform: translateX(16px); background-color: 
     width: 100%;
 }
 
-/* ============================================
-   Modals
-============================================ */
 .modal {
     display: none;
     position: fixed;
@@ -854,7 +803,6 @@ input:checked + .slider:before { transform: translateX(16px); background-color: 
     justify-content: flex-end;
 }
 
-/* Auth / Login Modal */
 .auth-box {
     background: var(--bg-panel);
     border: 1px solid var(--border-color);
@@ -923,9 +871,6 @@ input:checked + .slider:before { transform: translateX(16px); background-color: 
     margin-top: 8px;
 }
 
-/* ============================================
-   Leaflet Map Dark Theme Overrides
-============================================ */
 .leaflet-container {
     background-color: var(--bg-base) !important;
 }
